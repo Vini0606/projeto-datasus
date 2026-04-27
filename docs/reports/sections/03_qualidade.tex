@@ -1,0 +1,18 @@
+\section{Análise da Qualidade dos Dados}
+Nesta seção, apresenta-se a auditoria de qualidade realizada sobre a base de dados integrada do SIA/SUS, utilizando as dimensões de completude e consistência.
+
+\subsection{Matriz de Completude e Inventário}
+A base de dados apresentou um índice de completude superior a 99\% para os campos de identificação municipal e período. No entanto, identificou-se que variáveis financeiras apresentam registros com valor zero, o que requer atenção na modelagem estatística.
+
+\subsection{Priorização de Problemas (Pareto)}
+Aplicou-se o Diagrama de Pareto para identificar os "poucos vitais" que afetam a integridade do banco. Conforme a Figura \ref{fig:pareto}, os valores zerados representam o maior volume de inconsistências.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.7\textwidth]{figures/pareto_qualidade.png}
+    \caption{Diagrama de Pareto para Problemas de Qualidade.}
+    \label{fig:pareto}
+\end{figure}
+
+\subsection{Matriz GUT e Plano de Ação}
+Para priorizar as correções, utilizou-se a Matriz GUT. O problema de "Duplicidade de Carga" foi classificado com a maior prioridade devido à sua tendência de crescimento caso o pipeline de ETL não possua travas de integridade.

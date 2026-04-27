@@ -1,0 +1,13 @@
+﻿\section{Metodologia e Desenvolvimento Técnico}
+A arquitetura da solução foi fundamentada no ecossistema Python, utilizando o gerenciador de pacotes \textit{uv} para garantir a reprodutibilidade do ambiente virtual.
+
+\subsection{Estratégia de Web Scraping com Playwright}
+Diferente de ferramentas como Selenium, o Playwright foi escolhido por sua capacidade de lidar com a execução assíncrona do Tabnet. O robô foi programado para navegar pelas \textit{tags} de seleção, lidar com janelas \textit{pop-up} de resultados e extrair o conteúdo bruto diretamente do elemento \textit{DOM}.
+
+\subsection{Modelo de Dados e Persistência}
+A persistência foi realizada em um banco de dados PostgreSQL. A escolha de um banco relacional justifica-se pela necessidade de integridade referencial entre os códigos de municípios e os valores de produção.
+
+% INSIRA A TABELA DO DICIONÁRIO DE DADOS AQUI (aquela que te mandei antes)
+
+\subsection{Tratamento de Dados Esparsos}
+Um desafio técnico central foi a exibição de "Linhas Zeradas". No portal original, a ausência de produção é omitida ou representada por hifens. No processo de ETL, esses registros foram normalizados para o valor decimal $0.00$, garantindo que a análise estatística não sofra viés por omissão de dados.

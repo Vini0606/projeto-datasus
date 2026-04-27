@@ -1,0 +1,13 @@
+﻿\section{Introdução}
+O Sistema de Único de Saúde (SUS) é referência mundial em capilaridade e volume de dados. Entre suas ferramentas de gestão, o Sistema de Informações Ambulatoriais (SIA/SUS) destaca-se por registrar a produção de procedimentos realizados fora do regime de internação. Contudo, o acesso a esses dados através do portal Tabnet, embora público, impõe barreiras tecnológicas significativas devido à sua interface legada.
+
+\subsection{Problematização}
+A extração manual de dados para séries temporais extensas (como o período de 25 meses solicitado) é um processo ineficiente e suscetível a falhas operacionais. A necessidade de selecionar manualmente parâmetros de linha, coluna, incremento e arquivos mensais torna a análise de larga escala impraticável sem o auxílio de automação.
+
+\subsection{Objetivos do Projeto}
+Este projeto propõe o desenvolvimento de um pipeline de dados automatizado que integra:
+\begin{enumerate}
+    \item \textbf{Web Scraping:} Coleta autônoma de 25 meses de dados de Quantidade e Valor Aprovado;
+    \item \textbf{Engenharia de Dados:} Transformação de matrizes esparsas em modelos relacionais normalizados;
+    \item \textbf{Business Intelligence:} Visualização interativa via Dashboard para suporte à decisão.
+\end{enumerate}
