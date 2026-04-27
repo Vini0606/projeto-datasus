@@ -2,34 +2,47 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 from sqlalchemy import create_engine
-from dotenv import load_dotenv
 import os
-
-load_dotenv()  # Carrega variáveis do .env
 
 # Configurações iniciais
 st.set_page_config(page_title="SIA/SUS Analytics", layout="wide", page_icon="🏥")
 
 # --- CONEXÃO ---
-# Certifique-se de que a URL está no formato correto (sem o jdbc:)
-DB_URL = os.getenv("DB_URL")
+# Tenta obter dos Secrets (Deploy) ou do ambiente local
+if "DB_URL" in st.secrets:
+    DB_URL = st.secrets["DB_URL"]
+else:
+    # Fallback para desenvolvimento local
+    DB_URL = os.getenv("DB_URL")
 
 @st.cache_resource
 def get_engine():
+    if not DB_URL:
+        st.error("A variável de conexão DB_URL não foi encontrada.")
+        st.stop()
     return create_engine(DB_URL)
 
-@st.cache_data
+@st.cache_data(ttl=600) # Adicionado TTL para atualizar dados a cada 10 min
 def load_data():
-    engine = get_engine()
-    query = "SELECT * FROM producao_ambulatorial ORDER BY periodo ASC"
-    df = pd.read_sql(query, engine)
-    # Garantir que periodo é datetime
-    df['periodo'] = pd.to_datetime(df['periodo'])
-    return df
+    try:
+        engine = get_engine()
+        query = "SELECT * FROM producao_ambulatorial ORDER BY periodo ASC"
+        df = pd.read_sql(query, engine)
+        df['periodo'] = pd.to_datetime(df['periodo'])
+        return df
+    except Exception as e:
+        st.error(f"Falha na consulta ao banco: {e}")
+        return pd.DataFrame() # Retorna DF vazio para não quebrar o dashboard
 
 try:
     
+    # Execução principal
     df = load_data()
+
+    if df.empty:
+        st.warning("⚠️ Não foram encontrados dados. Certifique-se de que o banco de dados está acessível e contém a tabela 'producao_ambulatorial'.")
+        st.info("Dica: Verifique se o IP do servidor do Streamlit tem permissão de acesso no seu banco de dados PostgreSQL.")
+        st.stop()
 
     # --- SIDEBAR (FILTROS) ---
     st.sidebar.header("Filtros de Pesquisa")
