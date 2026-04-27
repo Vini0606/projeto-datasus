@@ -1,50 +1,37 @@
+# --- NO TOPO DO ARQUIVO ---
 import streamlit as st
 import pandas as pd
-import plotly.express as px
 from sqlalchemy import create_engine
 import os
 
-# Configurações iniciais
-st.set_page_config(page_title="SIA/SUS Analytics", layout="wide", page_icon="🏥")
+# 1. Tente obter a URL de forma segura
+DB_URL = st.secrets.get("DB_URL") # .get evita erro se a chave não existir
 
-# --- CONEXÃO ---
-# Tenta obter dos Secrets (Deploy) ou do ambiente local
-if "DB_URL" in st.secrets:
-    DB_URL = st.secrets["DB_URL"]
-else:
-    # Fallback para desenvolvimento local
-    DB_URL = os.getenv("DB_URL")
-
-@st.cache_resource
-def get_engine():
-    if not DB_URL:
-        st.error("A variável de conexão DB_URL não foi encontrada.")
-        st.stop()
-    return create_engine(DB_URL)
-
-@st.cache_data(ttl=3600) # Cache por 1 hora para evitar sobrecarregar o banco do IESB
+@st.cache_data(ttl=3600)
 def load_data():
+    if not DB_URL:
+        return None, "Variável DB_URL não configurada nos Secrets."
+    
     try:
-        engine = create_engine(DB_URL)
+        # Tenta conectar com um timeout curto para não travar o health check
+        engine = create_engine(DB_URL, connect_args={'connect_timeout': 5})
         query = "SELECT * FROM producao_ambulatorial ORDER BY periodo ASC"
         df = pd.read_sql(query, engine)
-        if not df.empty:
-            df['periodo'] = pd.to_datetime(df['periodo'])
-        return df
+        return df, None
     except Exception as e:
-        # Exibe o erro na tela mas não derruba o app
-        st.error(f"Erro de conexão: {e}")
-        return pd.DataFrame()
+        return None, str(e)
 
+# --- EXECUÇÃO ---
+st.title("🏥 SIA/SUS Analytics")
+    
 try:
     
-    # Execução principal
-    df = load_data()
+    df, error = load_data()
 
-    if df.empty:
-        st.warning("⚠️ Não foram encontrados dados. Certifique-se de que o banco de dados está acessível e contém a tabela 'producao_ambulatorial'.")
-        st.info("Dica: Verifique se o IP do servidor do Streamlit tem permissão de acesso no seu banco de dados PostgreSQL.")
-        st.stop()
+    if error:
+        st.error(f"⚠️ Erro de Conexão: {error}")
+        st.info("O servidor do IESB pode estar bloqueando o acesso externo.")
+        st.stop() # O st.stop interrompe o script graciosamente, sem derrubar o servidor
 
     # --- SIDEBAR (FILTROS) ---
     st.sidebar.header("Filtros de Pesquisa")
