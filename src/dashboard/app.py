@@ -22,17 +22,19 @@ def get_engine():
         st.stop()
     return create_engine(DB_URL)
 
-@st.cache_data(ttl=600) # Adicionado TTL para atualizar dados a cada 10 min
+@st.cache_data(ttl=3600) # Cache por 1 hora para evitar sobrecarregar o banco do IESB
 def load_data():
     try:
-        engine = get_engine()
+        engine = create_engine(DB_URL)
         query = "SELECT * FROM producao_ambulatorial ORDER BY periodo ASC"
         df = pd.read_sql(query, engine)
-        df['periodo'] = pd.to_datetime(df['periodo'])
+        if not df.empty:
+            df['periodo'] = pd.to_datetime(df['periodo'])
         return df
     except Exception as e:
-        st.error(f"Falha na consulta ao banco: {e}")
-        return pd.DataFrame() # Retorna DF vazio para não quebrar o dashboard
+        # Exibe o erro na tela mas não derruba o app
+        st.error(f"Erro de conexão: {e}")
+        return pd.DataFrame()
 
 try:
     
