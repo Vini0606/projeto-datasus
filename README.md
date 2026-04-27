@@ -58,6 +58,10 @@ Os dados são provenientes do [DataSUS](http://datasus.saude.gov.br/) e incluem:
 
 Período disponível: 2024-2026
 
+## 📈 Dashboard
+
+Acesse o dashboard interativo do projeto: [https://projeto-datasus.streamlit.app/](https://projeto-datasus.streamlit.app/)
+
 ## 🔧 Comandos
 
 Use o Makefile para comandos rápidos:
